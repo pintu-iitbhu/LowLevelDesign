@@ -1,4 +1,8 @@
 package com.rcpky.interfaces;
 
-public interface EvictionPolicy {
+import com.rcpky.model.Node;
+
+public interface EvictionPolicy<K> {
+    K evictKey();
+    void keyAccessed(K key);
 }
