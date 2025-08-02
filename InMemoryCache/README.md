@@ -168,7 +168,7 @@ mvn test
 - Add callback mechanisms for eviction events
 
 
-# 📚 In-Memory Cache Design – Interview Q&A (Urban Company SDE-2)
+# 📚 In-Memory Cache Design – Interview Q&A
 
 This document covers common **cross-questions** asked in interviews for the low-level design of a **Generic In-Memory Cache Library**, along with strong, SDE-2-level answers.
 
