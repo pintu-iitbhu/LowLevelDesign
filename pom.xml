@@ -24,7 +24,8 @@
     <modules>
         <module>InMemoryCache</module>
 		<module>LLD</module>
-    </modules>
+		<module>ParkingLot</module>
+	</modules>
     <scm>
 		<connection/>
 		<developerConnection/>
