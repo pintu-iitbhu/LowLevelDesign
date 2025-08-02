@@ -166,3 +166,181 @@ mvn test
 - Add statistics collection for cache hits/misses
 - Support for distributed caching
 - Add callback mechanisms for eviction events
+
+
+# 📚 In-Memory Cache Design – Interview Q&A (Urban Company SDE-2)
+
+This document covers common **cross-questions** asked in interviews for the low-level design of a **Generic In-Memory Cache Library**, along with strong, SDE-2-level answers.
+
+---
+
+## 🚀 Summary of the Problem
+
+Design a **generic**, **thread-safe**, **pluggable**, and **extensible** in-memory cache that supports:
+- Generic `K, V` types
+- Eviction policies (e.g., **LRU**, **TTL**)
+- Optional expiration per entry
+- Thread-safe concurrent access
+- Clean API and testability
+
+---
+
+## 🧠 Cross-Question & Answer List
+
+### 🔐 Concurrency & Thread-Safety
+
+#### Q1: How does your cache handle concurrent access?
+**A:**  
+I use a `ReentrantLock` to synchronize critical sections involving the internal `Map` and eviction policy, ensuring thread safety for reads/writes. For better performance under read-heavy loads, a `ReadWriteLock` or sharded segments can be introduced.
+
+---
+
+#### Q2: Why not use `ConcurrentHashMap`?
+**A:**  
+`ConcurrentHashMap` ensures atomic access to the map, but doesn't coordinate with eviction logic (like LRU’s doubly linked list). We need atomicity across both cache and policy — thus explicit locking ensures consistency.
+
+---
+
+#### Q3: How can you improve concurrency further?
+**A:**
+- Use **segmented locking** or shard the cache
+- Switch to `StampedLock` or per-key locking
+- Use `ConcurrentHashMap` + `ConcurrentLinkedDeque` and CAS-based logic
+
+---
+
+### ♻️ Eviction Policies
+
+#### Q4: Why use HashMap + DLL for LRU?
+**A:**  
+It enables **O(1)** time complexity for `get`, `put`, and `evict` operations:
+- HashMap: key lookup
+- Doubly Linked List: maintain order of access
+
+---
+
+#### Q5: Can you support LFU/FIFO or other strategies?
+**A:**  
+Yes. The `EvictionPolicy<K>` interface allows plugging in custom policies (LFU, FIFO) without changing core cache logic.
+
+---
+
+### ⏳ TTL (Time-To-Live)
+
+#### Q6: How is TTL handled?
+**A:**  
+Each entry has an `expiryTimeMillis`. During `get()`, we check if it’s expired and evict it lazily. TTL is validated inline to avoid complexity of per-entry timers.
+
+---
+
+#### Q7: What are pros/cons of background TTL cleanup?
+**Pros:**
+- Frees memory earlier
+- Keeps cache size cleaner
+
+**Cons:**
+- Overhead of extra thread
+- Needs proper locking/synchronization
+- Tuning cleanup interval is non-trivial
+
+---
+
+### ⚖️ Trade-Offs
+
+#### Q8: Why not use Guava or Caffeine?
+**A:**  
+While production systems should use mature libraries, the custom implementation showcases understanding of:
+- OOP design
+- Eviction policies
+- Thread safety
+- System extensibility
+
+---
+
+#### Q9: What are the trade-offs of this design?
+**A:**
+- Higher memory usage (due to metadata)
+- Locking introduces contention under high concurrency
+- Lazy TTL eviction may hold expired entries longer unless cleaned
+
+---
+
+### 🧪 Testing & Extensibility
+
+#### Q10: How would you test this cache?
+**A:**
+- Unit tests for `put`, `get`, `eviction`, `remove`
+- Expiry tests using mockable time
+- Multithreaded stress tests using `ExecutorService`
+- Metric validation (hit/miss)
+
+---
+
+#### Q11: Can it support async refresh?
+**A:**  
+Yes. Add a `CacheLoader<K, V>` interface. If value is expired or missing, reload asynchronously and serve stale data in the meantime (to avoid stampede).
+
+---
+
+### 📊 Metrics & Monitoring
+
+#### Q12: How do you add cache hit/miss metrics?
+**A:**  
+Use `AtomicLong` counters for:
+- Hits (valid entry)
+- Misses (absent or expired)
+  Expose these via an endpoint or metrics interface for observability.
+
+---
+
+### 🧠 Advanced / Distributed Support
+
+#### Q13: Can this be extended to a distributed cache?
+**A:**  
+Yes. Add a storage interface and implement a Redis-backed or Hazelcast-backed cache. Also introduce:
+- Distributed invalidation
+- Partitioning
+- Serialization support
+
+---
+
+#### Q14: What is a cache stampede? How to avoid it?
+**A:**  
+A stampede happens when many threads try to load the same missing/expired key. Prevent via:
+- Per-key locking
+- Double-checked locking
+- Serve stale while loading new value
+
+---
+
+#### Q15: How would you support write-through or write-behind caching?
+**A:**  
+Introduce a `CacheWriter<K, V>` interface:
+- **Write-through**: write to cache + DB synchronously
+- **Write-behind**: queue writes and persist asynchronously using a background thread
+
+---
+
+## ✅ Summary
+
+This cache design focuses on:
+- Clean separation of concerns
+- Extensibility via interfaces
+- Thread safety and eviction accuracy
+- Performance via `O(1)` operations for LRU
+
+It’s designed to serve as a reusable utility across microservices with consistent behavior and observability.
+
+---
+
+## 📁 Bonus Suggestions
+
+- Implement this in a repo with:
+   - Interfaces
+   - Core logic
+   - Test cases
+   - `README.md` as documentation
+- Optionally use Spring Boot to expose cache metrics
+- Add Prometheus integration to track cache stats
+
+---
