@@ -4,7 +4,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 
 /**
- * Command Invoker that executes commands and maintains history for undo operations
+ * Command Invoker that exxecutes commands and maintains history for undo operations
  */
 public class CommandInvoker {
     private final Deque<ParkingCommand> commandHistory = new ArrayDeque<>();

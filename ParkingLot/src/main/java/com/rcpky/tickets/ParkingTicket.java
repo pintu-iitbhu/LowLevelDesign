@@ -1,17 +1,11 @@
 package com.rcpky.tickets;
 
-import com.rcpky.enums.PaymentStatus;
 import com.rcpky.enums.TicketStatus;
-import com.rcpky.models.Entrance;
-import com.rcpky.models.Exit;
 import com.rcpky.payments.Payment;
 import com.rcpky.vehicles.Vehicle;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.time.LocalDateTime;
 import java.util.Date;
-import java.util.UUID;
 
 @Setter
 @Getter
