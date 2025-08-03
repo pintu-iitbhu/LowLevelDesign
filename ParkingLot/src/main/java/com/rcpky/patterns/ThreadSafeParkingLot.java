@@ -1,7 +1,6 @@
 package com.rcpky.patterns;
 
 import com.rcpky.display.DisplayBoard;
-import com.rcpky.models.ParkingRate;
 import com.rcpky.patterns.observer.ParkingObserver;
 import com.rcpky.spots.ParkingSpot;
 import com.rcpky.spots.VehicleAccommodator;
@@ -19,8 +18,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class ThreadSafeParkingLot {
     // Volatile ensures visibility of changes across threads
     private static volatile ThreadSafeParkingLot instance;
-    public ParkingRate rate = new ParkingRate();
-    
     // Thread-safe collections
     private final Map<Integer, ParkingSpot> spots = new ConcurrentHashMap<>();
     private final Map<Integer, ParkingTicket> tickets = new ConcurrentHashMap<>();
