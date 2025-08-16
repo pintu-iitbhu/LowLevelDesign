@@ -26,6 +26,7 @@
 		<module>LLD</module>
 		<module>ParkingLot</module>
         <module>ElevatorSystem</module>
+        <module>BlackjackGame</module>
     </modules>
     <scm>
 		<connection/>
