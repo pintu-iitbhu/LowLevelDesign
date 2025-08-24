@@ -27,6 +27,7 @@
 		<module>ParkingLot</module>
         <module>ElevatorSystem</module>
         <module>BlackjackGame</module>
+        <module>ChessGame</module>
     </modules>
     <scm>
 		<connection/>
